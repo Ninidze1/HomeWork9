@@ -51,26 +51,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initBroadReceiver() {
-        LocalBroadcastManager.getInstance(this).registerReceiver(tokenPassingReceiver, IntentFilter(NOTIFY_ACTIVITY))
-    }
-
     private fun startService() {
         val intent = Intent(this, UserService::class.java)
         startService(intent)
     }
 
-    private val tokenPassingReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val bundle = intent.extras
-            if (bundle != null) {
+    private fun initBroadReceiver() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(serviceCallBackReceiver, IntentFilter(NOTIFY_ACTIVITY))
+    }
 
-                if (bundle.containsKey(SUCCESS_TAG)) {
-                    val isSuccessful = bundle.getBoolean(SUCCESS_TAG)
-                    if (isSuccessful) {
-                        viewModel.getUsers()
-                    }
-                }
+    private val serviceCallBackReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val bundle = intent.extras ?: return
+            if (!bundle.containsKey(SUCCESS_TAG)) {
+                return
+            }
+            val isSuccessful = bundle.getBoolean(SUCCESS_TAG)
+            if (isSuccessful) {
+                viewModel.getUsers()
             }
         }
     }
